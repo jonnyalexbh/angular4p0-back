@@ -81,35 +81,73 @@ $app->get('/delete-product/:id', function($id) use($db, $app){
 
 // UPDATE A PRODUCT
 $app->post('/update-product/:id', function($id) use($db, $app){
-  $json = $app->request->post('json');
-  $data = json_decode($json, true);
+	$json = $app->request->post('json');
+	$data = json_decode($json, true);
 
-  $sql = "UPDATE productos SET ".
-  "nombre = '{$data["nombre"]}', ".
-  "descripcion = '{$data["descripcion"]}', ".
-  "precio = '{$data["precio"]}' WHERE id = {$id}";
+	$sql = "UPDATE productos SET ".
+		   "nombre = '{$data["nombre"]}', ".
+		   "descripcion = '{$data["descripcion"]}', ";
 
-  $query = $db->query($sql);
-  
-  if($query){
-    $result = array(
-      'status' 	=> 'success',
-      'code'		=> 200,
-      'message' 	=> 'El producto se ha actualizado correctamente!!'
-    );
-  }else{
-    $result = array(
-      'status' 	=> 'error',
-      'code'		=> 404,
-      'message' 	=> 'El producto no se ha actualizado!!'
-    );
-  }
+	if(isset($data['imagen'])){
+ 		$sql .= "imagen = '{$data["imagen"]}', ";
+	}
 
-  echo json_encode($result);
+	$sql .=	"precio = '{$data["precio"]}' WHERE id = {$id}";
+
+
+	$query = $db->query($sql);
+
+	if($query){
+		$result = array(
+			'status' 	=> 'success',
+			'code'		=> 200,
+			'message' 	=> 'El producto se ha actualizado correctamente!!'
+		);
+	}else{
+		$result = array(
+			'status' 	=> 'error',
+			'code'		=> 404,
+			'message' 	=> 'El producto no se ha actualizado!!'
+		);
+	}
+
+	echo json_encode($result);
 
 });
 
 // UPLOAD AN IMAGE TO A PRODUCT
+$app->post('/upload-file', function() use($db, $app){
+	$result = array(
+		'status' 	=> 'error',
+		'code'		=> 404,
+		'message' 	=> 'El archivo no ha podido subirse'
+	);
+
+	if(isset($_FILES['uploads'])){
+		$piramideUploader = new PiramideUploader();
+
+		$upload = $piramideUploader->upload('image', "uploads", "uploads", array('image/jpeg', 'image/png', 'image/gif'));
+		$file = $piramideUploader->getInfoFile();
+		$file_name = $file['complete_name'];
+
+		if(isset($upload) && $upload["uploaded"] == false){
+			$result = array(
+				'status' 	=> 'error',
+				'code'		=> 404,
+				'message' 	=> 'El archivo no ha podido subirse'
+			);
+		}else{
+			$result = array(
+				'status' 	=> 'success',
+				'code'		=> 200,
+				'message' 	=> 'El archivo se ha subido',
+				'filename'  => $file_name
+			);
+		}
+	}
+
+	echo json_encode($result);
+});
 
 // SAVE PRODUCTS
 $app->post('/products', function() use($app, $db){
