@@ -6,6 +6,16 @@ $app = new \Slim\Slim();
 
 $db = new mysqli('localhost', 'root', '', 'angular4p0');
 
+// Header configuration
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Allow: GET, POST, OPTIONS, PUT, DELETE");
+$method = $_SERVER['REQUEST_METHOD'];
+if($method == "OPTIONS") {
+  die();
+}
+
 $app->get("/test", function () use ($app){
   echo "Hello world from Slim PHP";
 });
@@ -81,72 +91,72 @@ $app->get('/delete-product/:id', function($id) use($db, $app){
 
 // UPDATE A PRODUCT
 $app->post('/update-product/:id', function($id) use($db, $app){
-	$json = $app->request->post('json');
-	$data = json_decode($json, true);
+  $json = $app->request->post('json');
+  $data = json_decode($json, true);
 
-	$sql = "UPDATE productos SET ".
-		   "nombre = '{$data["nombre"]}', ".
-		   "descripcion = '{$data["descripcion"]}', ";
+  $sql = "UPDATE productos SET ".
+  "nombre = '{$data["nombre"]}', ".
+  "descripcion = '{$data["descripcion"]}', ";
 
-	if(isset($data['imagen'])){
- 		$sql .= "imagen = '{$data["imagen"]}', ";
-	}
+  if(isset($data['imagen'])){
+    $sql .= "imagen = '{$data["imagen"]}', ";
+  }
 
-	$sql .=	"precio = '{$data["precio"]}' WHERE id = {$id}";
+  $sql .=	"precio = '{$data["precio"]}' WHERE id = {$id}";
 
 
-	$query = $db->query($sql);
+  $query = $db->query($sql);
 
-	if($query){
-		$result = array(
-			'status' 	=> 'success',
-			'code'		=> 200,
-			'message' 	=> 'El producto se ha actualizado correctamente!!'
-		);
-	}else{
-		$result = array(
-			'status' 	=> 'error',
-			'code'		=> 404,
-			'message' 	=> 'El producto no se ha actualizado!!'
-		);
-	}
+  if($query){
+    $result = array(
+      'status' 	=> 'success',
+      'code'		=> 200,
+      'message' 	=> 'El producto se ha actualizado correctamente!!'
+    );
+  }else{
+    $result = array(
+      'status' 	=> 'error',
+      'code'		=> 404,
+      'message' 	=> 'El producto no se ha actualizado!!'
+    );
+  }
 
-	echo json_encode($result);
+  echo json_encode($result);
 
 });
 
 // UPLOAD AN IMAGE TO A PRODUCT
 $app->post('/upload-file', function() use($db, $app){
-	$result = array(
-		'status' 	=> 'error',
-		'code'		=> 404,
-		'message' 	=> 'El archivo no ha podido subirse'
-	);
+  $result = array(
+    'status' 	=> 'error',
+    'code'		=> 404,
+    'message' 	=> 'El archivo no ha podido subirse'
+  );
 
-	if(isset($_FILES['uploads'])){
-		$piramideUploader = new PiramideUploader();
+  if(isset($_FILES['uploads'])){
+    $piramideUploader = new PiramideUploader();
 
-		$upload = $piramideUploader->upload('image', "uploads", "uploads", array('image/jpeg', 'image/png', 'image/gif'));
-		$file = $piramideUploader->getInfoFile();
-		$file_name = $file['complete_name'];
+    $upload = $piramideUploader->upload('image', "uploads", "uploads", array('image/jpeg', 'image/png', 'image/gif'));
+    $file = $piramideUploader->getInfoFile();
+    $file_name = $file['complete_name'];
 
-		if(isset($upload) && $upload["uploaded"] == false){
-			$result = array(
-				'status' 	=> 'error',
-				'code'		=> 404,
-				'message' 	=> 'El archivo no ha podido subirse'
-			);
-		}else{
-			$result = array(
-				'status' 	=> 'success',
-				'code'		=> 200,
-				'message' 	=> 'El archivo se ha subido',
-				'filename'  => $file_name
-			);
-		}
-	}
+    if(isset($upload) && $upload["uploaded"] == false){
+      $result = array(
+        'status' 	=> 'error',
+        'code'		=> 404,
+        'message' 	=> 'El archivo no ha podido subirse'
+      );
+    }else{
+      $result = array(
+        'status' 	=> 'success',
+        'code'		=> 200,
+        'message' 	=> 'El archivo se ha subido',
+        'filename'  => $file_name
+      );
+    }
+  }
 
-	echo json_encode($result);
+  echo json_encode($result);
 });
 
 // SAVE PRODUCTS
