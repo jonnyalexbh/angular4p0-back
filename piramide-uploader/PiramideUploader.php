@@ -10,12 +10,12 @@ class PiramideUploader {
 
 	public function upload($name, $file, $directory, $types_allowed, $force_name = NULL) {
 		$this->info_file = array(
-			"name"			=> $_FILES["$file"]["name"],
-			"complete_name" => $name . "-" . time() . "-" . $_FILES["$file"]["name"],
-			"temporal_name" => $_FILES["$file"]["tmp_name"],
-			"type"			=> $_FILES["$file"]["type"],
-			"size"			=> $_FILES["$file"]["size"],
-			"error"			=> $_FILES["$file"]["error"]
+			"name"			=> $_FILES["$file"]["name"][0],
+			"complete_name" => $name . "-" . time() . "-" . $_FILES["$file"]["name"][0],
+			"temporal_name" => $_FILES["$file"]["tmp_name"][0],
+			"type"			=> $_FILES["$file"]["type"][0],
+			"size"			=> $_FILES["$file"]["size"][0],
+			"error"			=> $_FILES["$file"]["error"][0]
 		);
 
 		if ($force_name != NULL) {
